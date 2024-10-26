@@ -8,8 +8,14 @@ public class BallController : MonoBehaviour
     [SerializeField] float delay;
     [SerializeField] float hitOffset;
     [SerializeField] GameController game;
+    [SerializeField] AudioClip sfxPaddle;
+    [SerializeField] AudioClip sfxBrick;
+    [SerializeField] AudioClip sfxWall;
+    [SerializeField] AudioClip sfxFail;
 
     Rigidbody2D rb;
+    AudioSource sfx;
+
     Dictionary<string, int> bricks = new Dictionary<string, int> 
     {
         {"brick-r", 25},
@@ -20,6 +26,7 @@ public class BallController : MonoBehaviour
     
     void Start()
     {
+        sfx = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
 
         Invoke("LaunchBall", delay);
@@ -46,15 +53,22 @@ public class BallController : MonoBehaviour
 
         if (bricks.ContainsKey(tag))
         {
+            // play sound
+            sfx.clip = sfxBrick;
+            sfx.Play();
+
             // update score
             game.UpdateScore(bricks[tag]);
 
             // destroy brick
             Destroy(other.gameObject);
         }
-
-        if (tag == "paddle")
+        else if (tag == "paddle")
         {
+            // play sound
+            sfx.clip = sfxPaddle;
+            sfx.Play();
+
             // get paddle position
             Vector3 paddle = other.transform.position;
 
@@ -68,6 +82,12 @@ public class BallController : MonoBehaviour
                 rb.linearVelocityX *= -1;
             }
         }
+        else if (tag == "wall-top" || tag == "wall-lateral")
+        {
+            // play sound
+            sfx.clip = sfxWall;
+            sfx.Play();
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -76,6 +96,10 @@ public class BallController : MonoBehaviour
 
         if (tag == "wall-bottom")
         {
+            // play sound
+            sfx.clip = sfxFail;
+            sfx.Play();
+
             // update lives
             game.UpdateLives(-1);
             
