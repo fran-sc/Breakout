@@ -1,20 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    [SerializeField] float force;
-    [SerializeField] float delay;
-    [SerializeField] float hitOffset;
+    [Header("References")]
     [SerializeField] GameController game;
+
+    [Header("Audio Clips")]
     [SerializeField] AudioClip sfxPaddle;
     [SerializeField] AudioClip sfxBrick;
     [SerializeField] AudioClip sfxWall;
     [SerializeField] AudioClip sfxFail;
 
+    [Header("Settings")]
+    [SerializeField] float force;
+    [SerializeField] float delay;
+    [SerializeField] float hitOffset;
+    [SerializeField] float forceInc;
+
     Rigidbody2D rb;
     AudioSource sfx;
+    int hitCount = 0;   // number of hits on the paddle
+    GameObject paddle;
+    bool halved = false; // flag to check if paddle size is halved
 
     Dictionary<string, int> bricks = new Dictionary<string, int> 
     {
@@ -28,6 +36,8 @@ public class BallController : MonoBehaviour
     {
         sfx = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
+
+        paddle = GameObject.FindGameObjectWithTag("paddle");
 
         Invoke("LaunchBall", delay);
     }
@@ -69,6 +79,14 @@ public class BallController : MonoBehaviour
             sfx.clip = sfxPaddle;
             sfx.Play();
 
+            // update hit count and velocity
+            hitCount++;
+            if (hitCount % 4 == 0)
+            {
+                Debug.Log($"Hit count: {hitCount} --> Incrementando velocidad");
+                rb.AddForce(rb.linearVelocity.normalized * forceInc, ForceMode2D.Impulse);
+            }
+
             // get paddle position
             Vector3 paddle = other.transform.position;
 
@@ -87,6 +105,13 @@ public class BallController : MonoBehaviour
             // play sound
             sfx.clip = sfxWall;
             sfx.Play();
+
+            // hit on top wall
+            if (!halved && tag == "wall-top")
+            {
+                // reduce paddle size
+                HalvePaddle(true);
+            }
         }
     }
 
@@ -102,9 +127,26 @@ public class BallController : MonoBehaviour
 
             // update lives
             game.UpdateLives(-1);
+
+            // restore paddle size
+            if (halved)
+            {
+                HalvePaddle(false);
+            }
             
             // reset ball
             Invoke("LaunchBall", delay);
         }
+    }
+
+    private void HalvePaddle(bool halve)
+    {
+        halved = halve;
+
+        Vector3 scale = paddle.transform.localScale;
+
+        paddle.transform.localScale = halved ?
+            new Vector3(scale.x * 0.5f, scale.y, scale.z) :
+            new Vector3(scale.x * 2.0f, scale.y, scale.z);
     }
 }

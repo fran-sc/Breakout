@@ -3,8 +3,11 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] Text txtScore;
     [SerializeField] Text txtLives;
+
+    [Header("Settings")]
     [SerializeField] int lives;
 
     int score = 0;
