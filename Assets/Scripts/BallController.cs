@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BallController : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] GameController game;
-
     [Header("Audio Clips")]
     [SerializeField] AudioClip sfxPaddle;
     [SerializeField] AudioClip sfxBrick;
     [SerializeField] AudioClip sfxWall;
     [SerializeField] AudioClip sfxFail;
+    [SerializeField] AudioClip nextLevel;
 
     [Header("Settings")]
     [SerializeField] float force;
@@ -21,19 +20,24 @@ public class BallController : MonoBehaviour
     Rigidbody2D rb;
     AudioSource sfx;
     int hitCount = 0;   // number of hits on the paddle
+    int brickCount = 0; // number of bricks destroyed
     GameObject paddle;
     bool halved = false; // flag to check if paddle size is halved
+    int sceneId;
 
     Dictionary<string, int> bricks = new Dictionary<string, int> 
     {
         {"brick-r", 25},
         {"brick-a", 20},
         {"brick-g", 15},
-        {"brick-y", 10}
+        {"brick-y", 10},
+        {"brick-pass", 25}
     };
     
     void Start()
     {
+        sceneId = SceneManager.GetActiveScene().buildIndex;
+
         sfx = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
 
@@ -63,15 +67,7 @@ public class BallController : MonoBehaviour
 
         if (bricks.ContainsKey(tag))
         {
-            // play sound
-            sfx.clip = sfxBrick;
-            sfx.Play();
-
-            // update score
-            game.UpdateScore(bricks[tag]);
-
-            // destroy brick
-            Destroy(other.gameObject);
+            DestroyBrick(other.gameObject);
         }
         else if (tag == "paddle")
         {
@@ -100,7 +96,7 @@ public class BallController : MonoBehaviour
                 rb.linearVelocityX *= -1;
             }
         }
-        else if (tag == "wall-top" || tag == "wall-lateral")
+        else if (tag == "wall-top" || tag == "wall-lateral" || tag == "brick-rock")
         {
             // play sound
             sfx.clip = sfxWall;
@@ -126,7 +122,7 @@ public class BallController : MonoBehaviour
             sfx.Play();
 
             // update lives
-            game.UpdateLives(-1);
+            GameController.UpdateLives(-1);
 
             // restore paddle size
             if (halved)
@@ -137,9 +133,42 @@ public class BallController : MonoBehaviour
             // reset ball
             Invoke("LaunchBall", delay);
         }
+        else if (tag == "brick-pass")
+        {
+            DestroyBrick(other.gameObject);
+        }
     }
 
-    private void HalvePaddle(bool halve)
+    private void DestroyBrick(GameObject obj)
+    {
+        // play sound
+        sfx.clip = sfxBrick;
+        sfx.Play();
+
+        // update score
+        GameController.UpdateScore(bricks[obj.tag]);
+
+        // destroy brick
+        Destroy(obj);
+
+        // update destroyed brick count
+        brickCount++;
+        if (brickCount == GameController.totalBricks[sceneId])
+        {
+            // play level transition sound
+            sfx.clip = nextLevel;
+            sfx.Play();
+
+            // reset ball velocity and hide it
+            rb.linearVelocity = Vector2.zero;
+            GetComponent<SpriteRenderer>().enabled = false;
+
+            // load next level
+            Invoke("NextScene", 3);
+        }
+    }
+
+    void HalvePaddle(bool halve)
     {
         halved = halve;
 
@@ -148,5 +177,16 @@ public class BallController : MonoBehaviour
         paddle.transform.localScale = halved ?
             new Vector3(scale.x * 0.5f, scale.y, scale.z) :
             new Vector3(scale.x * 2.0f, scale.y, scale.z);
+    }
+
+    void NextScene()
+    {   int nextId = sceneId + 1;
+
+        if (nextId == SceneManager.sceneCountInBuildSettings)
+        {
+            nextId = 0;
+        }
+
+        SceneManager.LoadScene(nextId);
     }
 }

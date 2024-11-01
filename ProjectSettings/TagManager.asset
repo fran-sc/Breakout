@@ -12,6 +12,8 @@ TagManager:
   - brick-g
   - brick-a
   - brick-r
+  - brick-rock
+  - brick-pass
   layers:
   - Default
   - TransparentFX

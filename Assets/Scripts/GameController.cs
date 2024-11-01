@@ -1,30 +1,20 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] Text txtScore;
-    [SerializeField] Text txtLives;
+    public static int lives {get; private set;} = 3;
+    public static int score {get; private set;} = 0;
 
-    [Header("Settings")]
-    [SerializeField] int lives;
+    public static List<int> totalBricks {get; private set;} = new List<int> { 0, 32, 32};
 
-    int score = 0;
-    
-
-    public void UpdateScore(int points)
+    public static void UpdateScore(int points)
     {
         score += points;
     }
 
-    public void UpdateLives(int numLives)
+    public static void UpdateLives(int numLives)
     {
         lives += numLives;
-    }
-    void OnGUI()
-    {
-        txtScore.text = string.Format("{0,3:D3}", score);
-        txtLives.text = lives.ToString();
     }
 }
