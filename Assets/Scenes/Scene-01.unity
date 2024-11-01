@@ -2612,6 +2612,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45dd858db8319eb818e7ac475bde5eb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  txtGameOver: {fileID: 1571345905}
   sfxPaddle: {fileID: 8300000, guid: 625fa40ccc38bf52da8d48fc9809b329, type: 3}
   sfxBrick: {fileID: 8300000, guid: 32dfbbb595c8062a19c0463289310b0d, type: 3}
   sfxWall: {fileID: 8300000, guid: 2968a1320ae3d3241b6386db1bae6278, type: 3}
@@ -2621,6 +2622,7 @@ MonoBehaviour:
   delay: 1.5
   hitOffset: 0.2
   forceInc: 0.2
+  durationGameOver: 3
 --- !u!82 &1229458471
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3326,7 +3328,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 68b200acbb5c52abf8844588bf48f17b, type: 3}
-    m_FontSize: 48
+    m_FontSize: 32
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1

@@ -1,9 +1,14 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class BallController : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] Text txtGameOver;
+
     [Header("Audio Clips")]
     [SerializeField] AudioClip sfxPaddle;
     [SerializeField] AudioClip sfxBrick;
@@ -16,6 +21,7 @@ public class BallController : MonoBehaviour
     [SerializeField] float delay;
     [SerializeField] float hitOffset;
     [SerializeField] float forceInc;
+    [SerializeField] float durationGameOver;
 
     Rigidbody2D rb;
     AudioSource sfx;
@@ -130,8 +136,15 @@ public class BallController : MonoBehaviour
                 HalvePaddle(false);
             }
             
-            // reset ball
-            Invoke("LaunchBall", delay);
+            if (GameController.lives == 0)
+            {
+                StartCoroutine(GameOver());
+            }
+            else
+            {
+                // reset ball position and velocity
+                Invoke("LaunchBall", delay);
+            }
         }
         else if (tag == "brick-pass")
         {
@@ -180,7 +193,8 @@ public class BallController : MonoBehaviour
     }
 
     void NextScene()
-    {   int nextId = sceneId + 1;
+    {   
+        int nextId = sceneId + 1;
 
         if (nextId == SceneManager.sceneCountInBuildSettings)
         {
@@ -188,5 +202,25 @@ public class BallController : MonoBehaviour
         }
 
         SceneManager.LoadScene(nextId);
+    }
+
+    IEnumerator GameOver()
+    {
+        // show game over message
+        txtGameOver.gameObject.SetActive(true);
+
+        // fade in game over message
+        float t = 0.0f;
+        while (t < durationGameOver)
+        {
+            t += Time.deltaTime;
+
+            txtGameOver.color = Color.Lerp(Color.black, Color.white, t / durationGameOver);
+
+            yield return null;
+        }
+
+        // load initial scene
+        SceneManager.LoadScene(0);
     }
 }
