@@ -8,6 +8,6 @@
 
 <center>
 
-![Gameplay & Cabinet](Docs/cabinet.jpg)
+![Gameplay & Cabinet](Docs/cabinet.png)
 
 </center>
