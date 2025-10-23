@@ -23,14 +23,14 @@ public class GUIController : MonoBehaviour
     [SerializeField] Text txtScore;
     [SerializeField] Text txtLives;
 
+    /*
+    OnGUI()
+    -----------------
+    - Actualiza los componentes Text con la puntuación y las vidas actuales en cada frame.
+    - Nota: se podría optimizar actualizando sólo cuando cambien los valores.
+    */
     void OnGUI()
     {
-        /*
-         OnGUI()
-         -----------------
-         - Actualiza los componentes Text con la puntuación y las vidas actuales en cada frame.
-         - Nota: se podría optimizar actualizando sólo cuando cambien los valores.
-        */
         txtScore.text = string.Format("{0,3:D3}", GameController.score);
         txtLives.text = GameController.lives.ToString();
     }

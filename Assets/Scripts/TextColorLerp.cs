@@ -24,26 +24,26 @@ public class TextColorLerp : MonoBehaviour
     [SerializeField] Text msg;
     [SerializeField] float duration;
 
+    /*
+    Start()
+    -----------------
+    - Inicia la corrutina ChangeColor que se encarga de la interpolación del color.
+    - No realiza otra lógica; la corrutina controla el ciclo repetitivo.
+    */
     void Start()
     {
-        /*
-         Start()
-         -----------------
-         - Inicia la corrutina ChangeColor que se encarga de la interpolación del color.
-         - No realiza otra lógica; la corrutina controla el ciclo repetitivo.
-        */
         StartCoroutine(ChangeColor());
     }
 
+    /*
+    ChangeColor() - Corrutina
+    -----------------
+    - Interpola el color del Text desde negro a blanco en 'duration' segundos.
+    - Al finalizar reinicia la corrutina para repetir el efecto de forma indefinida.
+    - Contrato: se ejecuta asíncronamente y no devuelve un valor; gestiona el ciclo de color.
+    */
     IEnumerator ChangeColor()
     {
-        /*
-         ChangeColor() - Corrutina
-         -----------------
-         - Interpola el color del Text desde negro a blanco en 'duration' segundos.
-         - Al finalizar reinicia la corrutina para repetir el efecto de forma indefinida.
-         - Contrato: se ejecuta asíncronamente y no devuelve un valor; gestiona el ciclo de color.
-        */
         float t = 0.0f;
 
         while (t < duration)

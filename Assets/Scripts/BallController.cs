@@ -64,7 +64,7 @@ public class BallController : MonoBehaviour
     int sceneId;        // id de la escena actual
 
     // Mapa de tipos de ladrillo a los puntos que otorgan al destruirse
-    Dictionary<string, int> bricks = new Dictionary<string, int> 
+    Dictionary<string, int> bricks = new Dictionary<string, int>
     {
         {"brick-r", 25},
         {"brick-a", 20},
@@ -73,35 +73,36 @@ public class BallController : MonoBehaviour
         {"brick-pass", 25}
     };
     
+    /*
+        Start()
+        -----------------
+        - Inicializa estado local: obtiene el índice de la escena, cachea componentes
+            (AudioSource, Rigidbody2D) y referencia al paddle por etiqueta.
+        - Programa el lanzamiento de la bola tras 'delay' segundos.
+    */    
     void Start()
     {
-                /*
-                 Start()
-                 -----------------
-                 - Inicializa estado local: obtiene el índice de la escena, cachea componentes
-                     (AudioSource, Rigidbody2D) y referencia al paddle por etiqueta.
-                 - Programa el lanzamiento de la bola tras 'delay' segundos.
-                */
-                sceneId = SceneManager.GetActiveScene().buildIndex;
+        sceneId = SceneManager.GetActiveScene().buildIndex;
 
-                sfx = GetComponent<AudioSource>();
-                rb = GetComponent<Rigidbody2D>();
+        sfx = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody2D>();
 
-                paddle = GameObject.FindGameObjectWithTag("paddle");
+        paddle = GameObject.FindGameObjectWithTag("paddle");
 
-                Invoke("LaunchBall", delay);
+        Invoke("LaunchBall", delay);
     }
 
+    /*
+        LaunchBall()
+        -----------------
+        - Posiciona la bola en el origen y resetea su velocidad.
+        - Elige una dirección X aleatoria (izquierda/derecha) y Y fija hacia arriba.
+        - Aplica una fuerza inicial (impulso) para iniciar el movimiento.
+        - Contrato: no toma parámetros, usa los campos serializados 'force' y 'delay'.
+    */
     void LaunchBall()
     {
-        /*
-         LaunchBall()
-         -----------------
-         - Posiciona la bola en el origen y resetea su velocidad.
-         - Elige una dirección X aleatoria (izquierda/derecha) y Y fija hacia arriba.
-         - Aplica una fuerza inicial (impulso) para iniciar el movimiento.
-         - Contrato: no toma parámetros, usa los campos serializados 'force' y 'delay'.
-        */
+
         transform.position = Vector3.zero;
         rb.linearVelocity = Vector2.zero;
 
@@ -112,21 +113,22 @@ public class BallController : MonoBehaviour
         rb.AddForce(dir * force, ForceMode2D.Impulse);
     }
 
+    /*
+        OnCollisionEnter2D(Collision2D)
+        -----------------
+        - Maneja colisiones físicas con diferentes tipos de objetos según su etiqueta.
+        - Casos:
+        * Ladrillos (según 'bricks'): destruye el ladrillo y actualiza puntuación.
+        * Paddle: reproduce SFX, cuenta impactos, aumenta la fuerza cada N impactos
+            y ajusta la dirección horizontal si el contacto lo requiere.
+        * Paredes/rock: reproduce SFX y, si es la pared superior, reduce el paddle
+            (solo una vez, controlado por 'halved').
+        - Efectos secundarios: reproducción de sonidos, cambios en velocidad y tamaño del paddle.
+    */
     void OnCollisionEnter2D(Collision2D other)
     {
         string tag = other.gameObject.tag;
-        /*
-         OnCollisionEnter2D(Collision2D)
-         -----------------
-         - Maneja colisiones físicas con diferentes tipos de objetos según su etiqueta.
-         - Casos:
-           * Ladrillos (según 'bricks'): destruye el ladrillo y actualiza puntuación.
-           * Paddle: reproduce SFX, cuenta impactos, aumenta la fuerza cada N impactos
-             y ajusta la dirección horizontal si el contacto lo requiere.
-           * Paredes/rock: reproduce SFX y, si es la pared superior, reduce el paddle
-             (solo una vez, controlado por 'halved').
-         - Efectos secundarios: reproducción de sonidos, cambios en velocidad y tamaño del paddle.
-        */
+
         if (bricks.ContainsKey(tag))
         {
             DestroyBrick(other.gameObject);
@@ -145,8 +147,8 @@ public class BallController : MonoBehaviour
 
             Vector3 paddle = other.transform.position;
             Vector2 contact = other.GetContact(0).point;
-            
-            if ((rb.linearVelocityX < 0 && contact.x > (paddle.x + hitOffset)) || 
+
+            if ((rb.linearVelocityX < 0 && contact.x > (paddle.x + hitOffset)) ||
                 (rb.linearVelocityX > 0 && contact.x < (paddle.x - hitOffset)))
             {
                 rb.linearVelocityX *= -1;
@@ -164,18 +166,18 @@ public class BallController : MonoBehaviour
         }
     }
 
+    /*
+        OnTriggerEnter2D(Collider2D)
+        -----------------
+        - Detecta triggers (por ejemplo, salida por debajo del área de juego).
+        - Casos:
+        * wall-bottom: pérdida de vida, reproducción de sonido, restauración del paddle
+            si estaba reducido y relanzamiento de la bola tras 'delay'.
+        * brick-pass: algunos ladrillos usan trigger para ser destruidos al contacto.
+    */
     void OnTriggerEnter2D(Collider2D other)
     {
         string tag = other.gameObject.tag;
-        /*
-         OnTriggerEnter2D(Collider2D)
-         -----------------
-         - Detecta triggers (por ejemplo, salida por debajo del área de juego).
-         - Casos:
-           * wall-bottom: pérdida de vida, reproducción de sonido, restauración del paddle
-             si estaba reducido y relanzamiento de la bola tras 'delay'.
-           * brick-pass: algunos ladrillos usan trigger para ser destruidos al contacto.
-        */
         if (tag == "wall-bottom")
         {
             sfx.clip = sfxFail;
@@ -187,7 +189,7 @@ public class BallController : MonoBehaviour
             {
                 HalvePaddle(false);
             }
-            
+
             Invoke("LaunchBall", delay);
         }
         else if (tag == "brick-pass")
@@ -196,19 +198,19 @@ public class BallController : MonoBehaviour
         }
     }
 
+    /*
+        DestroyBrick(GameObject)
+        -----------------
+        - Ejecutado cuando la bola impacta un ladrillo que debe destruirse.
+        - Efectos secundarios:
+        * Reproduce el sonido de destrucción.
+        * Actualiza la puntuación usando el diccionario 'bricks'.
+        * Destruye el GameObject del ladrillo.
+        * Incrementa 'brickCount' y, si se han destruido todos los ladrillos del nivel,
+            inicia la secuencia de final de nivel (sonido, ocultar bola, cargar siguiente escena).
+    */
     private void DestroyBrick(GameObject obj)
     {
-        /*
-         DestroyBrick(GameObject)
-         -----------------
-         - Ejecutado cuando la bola impacta un ladrillo que debe destruirse.
-         - Efectos secundarios:
-           * Reproduce el sonido de destrucción.
-           * Actualiza la puntuación usando el diccionario 'bricks'.
-           * Destruye el GameObject del ladrillo.
-           * Incrementa 'brickCount' y, si se han destruido todos los ladrillos del nivel,
-             inicia la secuencia de final de nivel (sonido, ocultar bola, cargar siguiente escena).
-        */
         sfx.clip = sfxBrick;
         sfx.Play();
 
@@ -229,15 +231,15 @@ public class BallController : MonoBehaviour
         }
     }
 
+    /*
+        HalvePaddle(bool)
+        -----------------
+        - Ajusta la escala del paddle para reducirla a la mitad o restaurarla.
+        - Parámetro 'halve': true = reducir, false = restaurar al tamaño original duplicándolo.
+        - Efecto secundario: actualiza la bandera 'halved'.
+    */
     void HalvePaddle(bool halve)
     {
-        /*
-         HalvePaddle(bool)
-         -----------------
-         - Ajusta la escala del paddle para reducirla a la mitad o restaurarla.
-         - Parámetro 'halve': true = reducir, false = restaurar al tamaño original duplicándolo.
-         - Efecto secundario: actualiza la bandera 'halved'.
-        */
         halved = halve;
 
         Vector3 scale = paddle.transform.localScale;
@@ -247,16 +249,16 @@ public class BallController : MonoBehaviour
             new Vector3(scale.x * 2.0f, scale.y, scale.z);
     }
 
+    /*
+        NextScene()
+        -----------------
+        - Calcula el siguiente índice de escena y lo carga.
+        - Si la escena siguiente excede el conteo de escenas en build settings,
+        vuelve a la escena 0 (loop de niveles).
+    */
     void NextScene()
     {
-        /*
-         NextScene()
-         -----------------
-         - Calcula el siguiente índice de escena y lo carga.
-         - Si la escena siguiente excede el conteo de escenas en build settings,
-           vuelve a la escena 0 (loop de niveles).
-        */
-    int nextId = sceneId + 1;
+        int nextId = sceneId + 1;
 
         if (nextId == SceneManager.sceneCountInBuildSettings)
         {

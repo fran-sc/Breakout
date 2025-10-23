@@ -41,28 +41,28 @@ public class BallController0 : MonoBehaviour
     // Lista de etiquetas que identifican ladrillos (sin valores asociados)
     readonly List<string> bricks = new() {"brick-r", "brick-a", "brick-g", "brick-y"};
 
+    /*
+        Start()
+        -----------------
+        - Cachea componentes locales (AudioSource, Rigidbody2D) y programa el lanzamiento
+        de la bola tras 'delay' segundos.
+    */
     void Start()
     {
-        /*
-         Start()
-         -----------------
-         - Cachea componentes locales (AudioSource, Rigidbody2D) y programa el lanzamiento
-           de la bola tras 'delay' segundos.
-        */
         sfx = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
 
         Invoke("LaunchBall", delay);
     }
 
+    /*
+        LaunchBall()
+        -----------------
+        - Reinicia posición y velocidad de la bola, elige una dirección aleatoria
+        y aplica un impulso inicial usando el parámetro 'force'.
+    */
     void LaunchBall()
     {
-        /*
-         LaunchBall()
-         -----------------
-         - Reinicia posición y velocidad de la bola, elige una dirección aleatoria
-           y aplica un impulso inicial usando el parámetro 'force'.
-        */
         transform.position = Vector3.zero;
         rb.linearVelocity = Vector2.zero;
 

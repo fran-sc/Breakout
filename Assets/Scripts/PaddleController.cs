@@ -23,15 +23,15 @@ public class PaddleController : MonoBehaviour
     const float MAX_X = 3.1f;
     const float MIN_X = -3.1f;
     
+    /*
+    Update()
+    -----------------
+    - Lee la entrada del usuario (teclas izquierda/derecha) y mueve el paddle en X.
+    - Restringe el movimiento para que el paddle permanezca dentro de MIN_X..MAX_X.
+    - Usa Time.deltaTime para que el movimiento sea independiente del framerate.
+    */    
     void Update()
     {
-        /*
-         Update()
-         -----------------
-         - Lee la entrada del usuario (teclas izquierda/derecha) y mueve el paddle en X.
-         - Restringe el movimiento para que el paddle permanezca dentro de MIN_X..MAX_X.
-         - Usa Time.deltaTime para que el movimiento sea independiente del framerate.
-        */
         float x = transform.position.x;
 
         if (x > MIN_X && Input.GetKey(KeyCode.LeftArrow))

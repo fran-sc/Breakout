@@ -40,30 +40,30 @@ public class StartGame : MonoBehaviour
     // AudioSource local para reproducir sonido de inicio
     AudioSource sfx;
 
+    /*
+    Start()
+    -----------------
+    Inicialización de la instancia:
+    - Cachea componentes locales necesarios (AudioSource).
+    - No realiza lógica de juego pesada; deja el inicio real para Update.
+    */
     void Start()
     {
-        /*
-         Start()
-         -----------------
-         Inicialización de la instancia:
-         - Cachea componentes locales necesarios (AudioSource).
-         - No realiza lógica de juego pesada; deja el inicio real para Update.
-        */
         sfx = GetComponent<AudioSource>();
     }
 
+    /*
+    Update()
+    -----------------
+    Observa las entradas del jugador en cada frame.
+    - Si se pulsa cualquier tecla, inicia la secuencia de comienzo:
+    * Oculta la bola y el mensaje de inicio.
+    * Reproduce el sonido de inicio.
+    * Lanza la corrutina NextLevel para animar y cambiar de escena.
+    - Ejecuta rápidamente; no debe bloquear.
+    */
     void Update()
     {
-        /*
-         Update()
-         -----------------
-         Observa las entradas del jugador en cada frame.
-         - Si se pulsa cualquier tecla, inicia la secuencia de comienzo:
-           * Oculta la bola y el mensaje de inicio.
-           * Reproduce el sonido de inicio.
-           * Lanza la corrutina NextLevel para animar y cambiar de escena.
-         - Ejecuta rápidamente; no debe bloquear.
-        */
         if (Input.anyKeyDown)       
         {
             ball.SetActive(false);
@@ -74,16 +74,16 @@ public class StartGame : MonoBehaviour
         }
     }
 
+    /*
+    NextLevel() - Corrutina
+    -----------------
+    - Anima la escala del paddle desde su escala actual hasta X=0 durante 'duration'.
+    - Usa interpolación lineal (Lerp) basada en tiempo.
+    - Efectos secundarios: al terminar carga la escena con buildIndex 1.
+    - Contrato: no devuelve valor, se ejecuta de forma asíncrona hasta completion.
+    */
     IEnumerator NextLevel()
     {
-        /*
-         NextLevel() - Corrutina
-         -----------------
-         - Anima la escala del paddle desde su escala actual hasta X=0 durante 'duration'.
-         - Usa interpolación lineal (Lerp) basada en tiempo.
-         - Efectos secundarios: al terminar carga la escena con buildIndex 1.
-         - Contrato: no devuelve valor, se ejecuta de forma asíncrona hasta completion.
-        */
         float t = 0.0f;
 
         Vector3 scaleStart = paddle.localScale;
