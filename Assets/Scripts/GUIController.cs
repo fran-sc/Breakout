@@ -31,7 +31,9 @@ public class GUIController : MonoBehaviour
     */
     void OnGUI()
     {
+        // Formatear puntuación como número de 3 dígitos con ceros a la izquierda (ej: 025)
         txtScore.text = string.Format("{0,3:D3}", GameController.score);
+        // Mostrar número de vidas restantes como texto simple
         txtLives.text = GameController.lives.ToString();
     }
 }

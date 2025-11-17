@@ -35,6 +35,7 @@ public class GameController : MonoBehaviour
     */
     public static void UpdateScore(int points)
     {
+        // Añadir puntos a la puntuación total acumulada
         score += points;
     }
 
@@ -47,6 +48,7 @@ public class GameController : MonoBehaviour
     */
     public static void UpdateLives(int numLives)
     {
+        // Modificar el contador de vidas (sumar o restar según el parámetro)
         lives += numLives;
     }
 }

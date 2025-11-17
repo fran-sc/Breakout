@@ -32,14 +32,19 @@ public class PaddleController : MonoBehaviour
     */    
     void Update()
     {
+        // Obtener posición horizontal actual del paddle
         float x = transform.position.x;
 
+        // Mover hacia la izquierda si la tecla está presionada y no se ha alcanzado el límite izquierdo
         if (x > MIN_X && Input.GetKey(KeyCode.LeftArrow))
         {
+            // Desplazamiento dependiente del tiempo para movimiento consistente
             transform.Translate(-speed * Time.deltaTime, 0, 0);
         }
+        // Mover hacia la derecha si la tecla está presionada y no se ha alcanzado el límite derecho
         else if (x < MAX_X && Input.GetKey(KeyCode.RightArrow))
         {
+            // Desplazamiento dependiente del tiempo para movimiento consistente
             transform.Translate(speed * Time.deltaTime, 0, 0);
         }
     }

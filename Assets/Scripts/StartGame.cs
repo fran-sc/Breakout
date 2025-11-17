@@ -49,6 +49,7 @@ public class StartGame : MonoBehaviour
     */
     void Start()
     {
+        // Cachear el componente AudioSource para reproducir efectos de sonido
         sfx = GetComponent<AudioSource>();
     }
 
@@ -64,12 +65,17 @@ public class StartGame : MonoBehaviour
     */
     void Update()
     {
+        // Detectar si se ha presionado cualquier tecla para iniciar el juego
         if (Input.anyKeyDown)       
         {
+            // Ocultar la bola de la pantalla de inicio
             ball.SetActive(false);
+            // Ocultar el mensaje de "presiona cualquier tecla"
             msg.enabled = false;
+            // Reproducir efecto de sonido de inicio
             sfx.Play();
 
+            // Iniciar la corrutina de transición al siguiente nivel
             StartCoroutine(NextLevel());
         }
     }
@@ -86,19 +92,24 @@ public class StartGame : MonoBehaviour
     {
         float t = 0.0f;
 
+        // Guardar escala inicial del paddle
         Vector3 scaleStart = paddle.localScale;
+        // Definir escala final: ancho = 0, manteniendo alto y profundidad
         Vector3 scaleEnd = new Vector3(0.0f, scaleStart.y, scaleStart.z);
 
+        // Bucle de animación durante 'duration' segundos
         while (t < duration)
         {
             t += Time.deltaTime;
 
-            // ajustamos el escalado de la barrera
+            // Interpolar linealmente la escala del paddle desde inicio hasta fin
+            // Esto crea un efecto visual de "cierre" del paddle
             paddle.localScale = Vector3.Lerp(scaleStart, scaleEnd, t/duration);
             
             yield return null;
         }
 
+        // Al finalizar la animación, cargar la escena del primer nivel (buildIndex 1)
         SceneManager.LoadScene(1);
     }    
 }

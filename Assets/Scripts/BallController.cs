@@ -82,13 +82,17 @@ public class BallController : MonoBehaviour
     */    
     void Start()
     {
+        // Obtener el índice de la escena activa actual
         sceneId = SceneManager.GetActiveScene().buildIndex;
 
+        // Cachear componentes necesarios para optimizar acceso
         sfx = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
 
+        // Buscar y cachear referencia al paddle en la escena
         paddle = GameObject.FindGameObjectWithTag("paddle");
 
+        // Programar el lanzamiento automático de la bola después del delay inicial
         Invoke("LaunchBall", delay);
     }
 
@@ -102,14 +106,19 @@ public class BallController : MonoBehaviour
     */
     void LaunchBall()
     {
-
+        // Resetear posición de la bola al centro del juego (0,0,0)
         transform.position = Vector3.zero;
+        // Detener cualquier movimiento previo de la bola
         rb.linearVelocity = Vector2.zero;
 
+        // Determinar dirección vertical: siempre hacia abajo (-1)
         float dirX, dirY = -1.0f;
+        // Elegir dirección horizontal aleatoria: izquierda (-1) o derecha (1)
         dirX = (Random.Range(0, 2) == 0) ? -1.0f : 1.0f;
+        // Crear vector de dirección normalizado para garantizar velocidad constante
         Vector2 dir = new Vector2(dirX, dirY).normalized;
 
+        // Aplicar impulso inicial a la bola en la dirección calculada
         rb.AddForce(dir * force, ForceMode2D.Impulse);
     }
 
@@ -129,36 +138,47 @@ public class BallController : MonoBehaviour
     {
         string tag = other.gameObject.tag;
 
+        // Manejo de colisión con ladrillos destructibles
         if (bricks.ContainsKey(tag))
         {
             DestroyBrick(other.gameObject);
         }
+        // Manejo de colisión con el paddle
         else if (tag == "paddle")
         {
+            // Reproducir sonido de impacto con el paddle
             sfx.clip = sfxPaddle;
             sfx.Play();
 
+            // Incrementar contador de impactos para sistema de aceleración progresiva
             hitCount++;
+            // Cada 4 impactos, incrementar la velocidad de la bola
             if (hitCount % 4 == 0)
             {
                 Debug.Log($"Hit count: {hitCount} --> Incrementando velocidad");
                 rb.AddForce(rb.linearVelocity.normalized * forceInc, ForceMode2D.Impulse);
             }
 
+            // Obtener posiciones para detectar efecto de rebote lateral
             Vector3 paddle = other.transform.position;
             Vector2 contact = other.GetContact(0).point;
 
+            // Invertir dirección horizontal si la bola golpea el lado "incorrecto" del paddle
+            // Esto evita que la bola quede atrapada rebotando en la misma dirección
             if ((rb.linearVelocityX < 0 && contact.x > (paddle.x + hitOffset)) ||
                 (rb.linearVelocityX > 0 && contact.x < (paddle.x - hitOffset)))
             {
                 rb.linearVelocityX *= -1;
             }
         }
+        // Manejo de colisión con paredes y ladrillos irrompibles
         else if (tag == "wall-top" || tag == "wall-lateral" || tag == "brick-rock")
         {
+            // Reproducir sonido de impacto contra pared
             sfx.clip = sfxWall;
             sfx.Play();
 
+            // Si es la primera vez que toca la pared superior, reducir tamaño del paddle
             if (!halved && tag == "wall-top")
             {
                 HalvePaddle(true);
@@ -178,20 +198,26 @@ public class BallController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         string tag = other.gameObject.tag;
+        // Detectar cuando la bola cae por debajo del área de juego (pérdida de vida)
         if (tag == "wall-bottom")
         {
+            // Reproducir sonido de fallo
             sfx.clip = sfxFail;
             sfx.Play();
 
+            // Decrementar vidas del jugador
             GameController.UpdateLives(-1);
 
+            // Si el paddle estaba reducido, restaurarlo al tamaño normal
             if (halved)
             {
                 HalvePaddle(false);
             }
 
+            // Relanzar la bola después de un delay
             Invoke("LaunchBall", delay);
         }
+        // Detectar ladrillos con trigger (atravesables)
         else if (tag == "brick-pass")
         {
             DestroyBrick(other.gameObject);
@@ -211,22 +237,30 @@ public class BallController : MonoBehaviour
     */
     private void DestroyBrick(GameObject obj)
     {
+        // Reproducir sonido de destrucción de ladrillo
         sfx.clip = sfxBrick;
         sfx.Play();
 
+        // Actualizar puntuación según el tipo de ladrillo destruido
         GameController.UpdateScore(bricks[obj.tag]);
 
+        // Eliminar el ladrillo de la escena
         Destroy(obj);
 
+        // Incrementar contador de ladrillos destruidos
         brickCount++;
+        // Verificar si se han destruido todos los ladrillos del nivel actual
         if (brickCount == GameController.totalBricks[sceneId])
         {
+            // Reproducir sonido de victoria/siguiente nivel
             sfx.clip = nextLevel;
             sfx.Play();
 
+            // Detener la bola y ocultarla
             rb.linearVelocity = Vector2.zero;
             GetComponent<SpriteRenderer>().enabled = false;
 
+            // Cargar el siguiente nivel después de 3 segundos
             Invoke("NextScene", 3);
         }
     }
@@ -240,10 +274,13 @@ public class BallController : MonoBehaviour
     */
     void HalvePaddle(bool halve)
     {
+        // Actualizar estado de reducción del paddle
         halved = halve;
 
+        // Obtener escala actual del paddle
         Vector3 scale = paddle.transform.localScale;
 
+        // Si halve=true, reducir a la mitad; si false, duplicar (restaurar)
         paddle.transform.localScale = halved ?
             new Vector3(scale.x * 0.5f, scale.y, scale.z) :
             new Vector3(scale.x * 2.0f, scale.y, scale.z);
@@ -258,13 +295,16 @@ public class BallController : MonoBehaviour
     */
     void NextScene()
     {
+        // Calcular el índice de la siguiente escena
         int nextId = sceneId + 1;
 
+        // Si se superó el número de escenas disponibles, volver al menú inicial (escena 0)
         if (nextId == SceneManager.sceneCountInBuildSettings)
         {
             nextId = 0;
         }
 
+        // Cargar la siguiente escena
         SceneManager.LoadScene(nextId);
     }
 }

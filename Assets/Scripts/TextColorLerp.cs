@@ -32,6 +32,7 @@ public class TextColorLerp : MonoBehaviour
     */
     void Start()
     {
+        // Iniciar la corrutina que anima el color del texto
         StartCoroutine(ChangeColor());
     }
 
@@ -46,16 +47,19 @@ public class TextColorLerp : MonoBehaviour
     {
         float t = 0.0f;
 
+        // Interpolar color del texto de negro a blanco durante 'duration' segundos
         while (t < duration)
         {
             t += Time.deltaTime;
 
-            // interpolamos el color del texto entre el negro y el blanco
+            // Interpolación lineal entre Color.black (inicio) y Color.white (fin)
+            // Crea un efecto de "fade in" del texto
             msg.color = Color.Lerp(Color.black, Color.white, t / duration);
 
             yield return null;
         }
 
+        // Al completar el ciclo, reiniciar la corrutina para efecto continuo
         StartCoroutine(ChangeColor());
     }
 }
