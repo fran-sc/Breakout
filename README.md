@@ -4,7 +4,7 @@
 
 #### Project: Breakout
 
-`[Unity ver.: 6.2.8f2]`
+`[Unity ver.: 6.6.5f1]`
 
 <center>
 
