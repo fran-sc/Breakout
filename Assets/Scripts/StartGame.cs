@@ -19,6 +19,8 @@ public class StartGame : MonoBehaviour
     void Start()
     {
         sfx = GetComponent<AudioSource>();
+
+        GameController.ResetGame();
     }
 
     void Update()

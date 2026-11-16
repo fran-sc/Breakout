@@ -17,4 +17,10 @@ public class GameController : MonoBehaviour
     {
         lives += numLives;
     }
+
+    public static void ResetGame()
+    {
+        lives = 3;
+        score = 0;
+    }
 }
